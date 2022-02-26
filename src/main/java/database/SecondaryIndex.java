@@ -5,6 +5,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -104,7 +106,7 @@ public class SecondaryIndex implements Serializable {
         return secondaryIndex;
     }
 
-    public long persist() throws IOException {
+    public long persist(String dbname) throws IOException {
         //Saving of object in a file
         GZIPOutputStream gis = new GZIPOutputStream(new FileOutputStream(indexFile));
         ObjectOutputStream out = new ObjectOutputStream(gis);
@@ -112,6 +114,20 @@ public class SecondaryIndex implements Serializable {
         out.writeObject(this);
         out.close();
         gis.close();
+
+        RandomAccessFile stream = new RandomAccessFile("/media/nvme7n1/jmuecke/TemporalGraphDifferences/DiffernecesOfSummaries/Indicies/" + dbname +".json", "rw");
+        FileChannel channel = stream.getChannel();
+        String value = this.toJson();
+        byte[] strBytes = value.getBytes();
+        ByteBuffer buffer = ByteBuffer.allocate(strBytes.length);
+        buffer.put(strBytes);
+        buffer.flip();
+        channel.write(buffer);
+        stream.close();
+        channel.close();
+
+
+
         logger.info(this.getClass().getSimpleName() + " has been serialized.");
         return new File(indexFile).length();
     }
@@ -667,6 +683,15 @@ public class SecondaryIndex implements Serializable {
         StringBuilder sb = new StringBuilder();
         storedImprints.forEach((k, v) -> sb.append(v.toString() + "\n"));
         schemaElementToImprint.forEach((k, v) -> sb.append("{" + k + "->" + v.toString() + "}"));
+        return sb.toString();
+    }
+
+    public String toJson(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"schemaElementToImprint\" : {\n");
+        schemaElementToImprint.forEach((k, v) -> sb.append("\"").append(k.toString()).append("\" : ").append(v.size()).append(","));
+        sb.deleteCharAt(sb.toString().length()-1);
+        sb.append("}\n}");
         return sb.toString();
     }
 
