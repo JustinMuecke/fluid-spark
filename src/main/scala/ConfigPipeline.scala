@@ -349,7 +349,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
           sc.stop()
           logger.info("Spark stopped")
           val secondaryBytes = OrientConnector.getInstance(database, trackPrimaryChanges, trackUpdateTimes, maxCoresInt).
-            getSecondaryIndex.persist()
+            getSecondaryIndex.persist(database)
           logger.info("Secondary index persisted")
 
           // only for memory tracking
