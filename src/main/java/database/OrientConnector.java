@@ -127,6 +127,7 @@ public class OrientConnector implements Serializable {
                 databaseSession.getClass(CLASS_SCHEMA_RELATION).createIndex(CLASS_SCHEMA_RELATION + "." + PROPERTY_SCHEMA_HASH, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, PROPERTY_SCHEMA_HASH);
 
                 databaseSession.commit();
+                databaseSession.close();
             }
         }
         //    pool.close();
@@ -846,6 +847,8 @@ public class OrientConnector implements Serializable {
                 Set<String> types = schemaElement.getProperty(PROPERTY_SCHEMA_VALUES);
                 numberOfTypes = types.size();
                 schemaElementStats.put(hash, new Tuple2<>(numberOfTypes, numberOfProperties));
+                databaseSession.close();
+
             }
 
         }
@@ -900,6 +903,8 @@ public class OrientConnector implements Serializable {
                 result._timeSpentDeletingPrimaryIndex = System.currentTimeMillis() - start;
 
             result._result = true;
+            databaseSession.close();
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -943,6 +948,7 @@ public class OrientConnector implements Serializable {
             counts[0] = schemaElements.count();
             OClass schemaLinks = databaseSession.getClass(CLASS_SCHEMA_RELATION);
             counts[1] = schemaLinks.count();
+            databaseSession.close();
         }
         // Return User Count
         return counts;
