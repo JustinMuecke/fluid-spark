@@ -422,7 +422,10 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
             else
               schemaStats.putAll(tmpStats)
           }
-
+          OrientConnector.create(database + "-" + iteration, config.getBoolean(config.VARS.igsi_clearRepo))
+          val igsisave = new IGSI(database + "-" + iteration, trackPrimaryChanges, trackUpdateTimes)
+          igsisave.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt)
+          
           OrientConnector.getInstance(database, trackPrimaryChanges, trackUpdateTimes, maxCoresInt).close()
           logger.info(s"Iteration ${iteration} completed.")
         }
@@ -480,10 +483,8 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
         }
       } else
 
-      OrientConnector.create(database + "-" + iteration, config.getBoolean(config.VARS.igsi_clearRepo))
-      val igsisave = new IGSI(database + "-" + iteration, trackPrimaryChanges, trackUpdateTimes)
-      igsisave.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt)
-            
+
+
       iterator.next()
       iteration += 1
     }
