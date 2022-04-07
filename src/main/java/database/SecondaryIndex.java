@@ -106,7 +106,7 @@ public class SecondaryIndex implements Serializable {
         return secondaryIndex;
     }
 
-    public long persist(String dbname) throws IOException {
+    public long persist(String dbname, int iteration) throws IOException {
         //Saving of object in a file
         GZIPOutputStream gis = new GZIPOutputStream(new FileOutputStream(indexFile));
         ObjectOutputStream out = new ObjectOutputStream(gis);

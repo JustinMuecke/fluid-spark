@@ -349,7 +349,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
           sc.stop()
           logger.info("Spark stopped")
           val secondaryBytes = OrientConnector.getInstance(database, trackPrimaryChanges, trackUpdateTimes, maxCoresInt).
-            getSecondaryIndex.persist(database)
+            getSecondaryIndex.persist(database+"-"+iteration)
           logger.info("Secondary index persisted")
 
           // only for memory tracking
@@ -479,7 +479,12 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
           //println(s"Batch computation ${iteration} also completed! Compare sizes: batch: ${goldSize} vs.  incr. ${indexBytes}")
         }
       } else
-        iterator.next()
+
+      OrientConnector.create(database + "-" + iteration, config.getBoolean(config.VARS.igsi_clearRepo))
+      val igsisave = new IGSI(database + "-" + iteration, trackPrimaryChanges, trackUpdateTimes)
+      igsisave.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt)
+            
+      iterator.next()
       iteration += 1
     }
 
