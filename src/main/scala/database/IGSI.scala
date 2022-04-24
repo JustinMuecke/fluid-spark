@@ -8,12 +8,14 @@ import scala.collection.JavaConverters._
 class IGSI(database: String, trackChanges: Boolean, trackExecutionTimes: Boolean) extends Serializable {
 
   def saveRDD(rdd: RDD[SchemaElement], map: Iterator[SchemaElement] => Iterator[Any], batch: Boolean,
-              datasourcePayload: Boolean, maxCoresInt: Int): Unit = {
+              datasourcePayload: Boolean, maxCoresInt: Int, iteration : Int): Unit = {
     rdd.foreachPartition { p =>
       var tmpResult: Result[Boolean] = new Result[Boolean](trackExecutionTimes, trackChanges)
       if (p.nonEmpty) {
         val graphDatabase: OrientConnector = OrientConnector.getInstance(database, trackChanges, trackExecutionTimes, maxCoresInt)
+        val persistDatabase : OrientConnector = OrientConnector.getInstance(database + "-" + iteration, trackChanges, trackExecutionTimes, maxCoresInt)
         tmpResult = graphDatabase.writeCollection(map(p).toList.asJava, batch, datasourcePayload).asInstanceOf[Result[Boolean]]
+        tmpPersist = persistDatabase.writeCollection(map(p).toList.asJava, batch, datasourcePayload).asInstanceOf[Result[Boolean]]
         if (trackChanges) {
           Result.syncStaticMerge(tmpResult)
         }
