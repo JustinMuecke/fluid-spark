@@ -472,7 +472,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
             se
           })
           //        tmp.foreach(t => println(t))
-          igsiBatch.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, true, datasourcePayload, maxCoresInt)
+          igsiBatch.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, true, datasourcePayload, maxCoresInt, iteration)
 
           logger.info("Trying to stop batch context")
           scBatch.stop()
