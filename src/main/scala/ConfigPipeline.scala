@@ -258,6 +258,8 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
 
           val sc = new SparkContext(conf)
           val igsi = new IGSI(database, trackPrimaryChanges, trackUpdateTimes)
+          val persistIgsi = new IGSI(database +"-"+iteration, trackPrimaryChanges, trackUpdatesTimes)
+
 
 
           //parse n-triple file to RDD of GraphX Edges
@@ -294,6 +296,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
             val updateGraph = RDFGraphParser.parse(knownInstanceEdges)
             val instances = updateGraph.triplets.map(t => (t.attr._1, new TripletWrapper(t))).reduceByKey(_.merge(_)).values
             igsi.updateDelta(instances, (x: Iterator[TripletWrapper]) => x, true, datasourcePayload, maxCoresInt)
+            persistIgsi.updateDelta(instances, (x: Iterator[TripletWrapper]) => x, true, datasourcePayload, maxCoresInt)
 
             val deleteGraph = RDFGraphParser.parse(removalEdges)
             val removalInstances = deleteGraph.triplets.map(t => (t.attr._1, new TripletWrapper(t))).reduceByKey(_.merge(_)).values
@@ -322,6 +325,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
           //stream save in parallel (faster than individual add)
           logger.info("Find and Merge Phase")
           igsi.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt, iteration)
+          persistIgsi.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt, iteration)
 
           if (trackPrimaryChanges || trackSecondaryChanges)
             updateResult.mergeAll(Result.getInstance())
