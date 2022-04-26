@@ -258,7 +258,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
 
           val sc = new SparkContext(conf)
           val igsi = new IGSI(database, trackPrimaryChanges, trackUpdateTimes)
-          val persistIgsi = new IGSI(database +"-"+iteration, trackPrimaryChanges, trackUpdatesTimes)
+          val persistIgsi = new IGSI(database +"-"+iteration, trackPrimaryChanges, trackUpdateTimes)
 
 
 
