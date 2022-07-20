@@ -224,7 +224,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
 
           if (iteration == 0 || iteration == skipSnapshots) {
             OrientConnector.create(database, config.getBoolean(config.VARS.igsi_clearRepo))
-            OrientConnector.create(database + "-" + iteration, config.getBoolean(config.VARS.igsi_clearRepo))
+           // OrientConnector.create(database + "-" + iteration, config.getBoolean(config.VARS.igsi_clearRepo))
           } else {
             OrientConnector.getInstance(database, trackPrimaryChanges, trackUpdateTimes, maxCoresInt).open(maxCoresInt)
             OrientConnector.create(database + "-" + iteration, config.getBoolean(config.VARS.igsi_clearRepo))
@@ -325,7 +325,7 @@ class ConfigPipeline(config: MyConfig, skipSnapshots: Int = 0, endEarly: Int = I
           //stream save in parallel (faster than individual add)
           logger.info("Find and Merge Phase")
           igsi.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt, iteration)
-          persistIgsi.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt, iteration)
+         // persistIgsi.saveRDD(tmp, (x: Iterator[SchemaElement]) => x, false, datasourcePayload, maxCoresInt, iteration)
 
           if (trackPrimaryChanges || trackSecondaryChanges)
             updateResult.mergeAll(Result.getInstance())
